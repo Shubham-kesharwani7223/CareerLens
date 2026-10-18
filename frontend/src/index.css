@@ -1,0 +1,556 @@
+/* @import "tailwindcss";
+@config "../tailwind.config.js";
+
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+
+  .dark {
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    @apply border-gray-200 dark:border-white/10;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-white text-gray-900 antialiased dark:bg-slate-950 dark:text-gray-100;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  #root {
+    min-height: 100%;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-brand-500/50 ring-offset-2 dark:ring-offset-slate-950;
+  }
+} */
+
+/* @layer utilities {
+  /* Glassmorphism card */
+  /* .glass-card {
+    @apply rounded-2xl border border-gray-200 bg-white shadow-sm;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  }
+  .glass-card:hover {
+    border-color: rgba(99, 102, 241, 0.35);
+  }
+  .dark .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: border-color 0.2s ease;
+  }
+  .dark .glass-card:hover {
+    border-color: rgba(99, 102, 241, 0.35);
+  } */ 
+
+  /* Glass input */
+  /* .glass-input {
+    @apply rounded-xl border border-gray-300 bg-white text-sm shadow-sm transition-all;
+    @apply focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20;
+  }
+  .dark .glass-input {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+  }
+  .dark .glass-input:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.15);
+  } */
+
+  /* Text gradient */
+  /* .text-gradient {
+    @apply bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent;
+  } */
+
+  /* Glow effect for CTAs */
+  /* .glow-brand {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3), 0 0 60px rgba(99, 102, 241, 0.1);
+  }
+  .glow-brand:hover {
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.4), 0 0 80px rgba(99, 102, 241, 0.15);
+  } */
+
+  /* Custom scrollbar */
+  /* .scrollbar-thin { scrollbar-width: thin; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 3px; } */
+
+  /* Resume visualization preview — thin, modern, dashboard-aligned */
+  /* .viz-preview-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.75) rgba(15, 23, 42, 0.2);
+  }
+  .viz-preview-scroll::-webkit-scrollbar {
+    width: 7px;
+  }
+  .viz-preview-scroll::-webkit-scrollbar-track {
+    margin: 4px 0;
+    background: rgba(15, 23, 42, 0.12);
+    border-radius: 8px;
+  }
+  .viz-preview-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.45), rgba(139, 92, 246, 0.45));
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .viz-preview-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.75), rgba(139, 92, 246, 0.75));
+    background-clip: padding-box;
+  }
+  .dark .viz-preview-scroll {
+    scrollbar-color: rgba(129, 140, 248, 0.45) rgba(15, 23, 42, 0.5);
+  }
+  .dark .viz-preview-scroll::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.55);
+  }
+  .dark .viz-preview-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.35), rgba(139, 92, 246, 0.35));
+    background-clip: padding-box;
+  }
+  .dark .viz-preview-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(129, 140, 248, 0.55), rgba(167, 139, 250, 0.5));
+    background-clip: padding-box;
+  } */
+
+  /* Smooth, reliable mobile scrolling for the dashboard's main content area.
+     Without these, iOS Safari/Chrome can "stick" momentum scroll inside nested
+     overflow containers and overscroll bounce can cancel touch gestures. */
+  /* .dashboard-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  } */
+
+  /* h-screen uses 100vh which on mobile browsers includes the URL bar height,
+     making the layout taller than the actual visible viewport and breaking
+     nested scroll containers. dvh = dynamic viewport height. */
+  /* .dvh-screen {
+    height: 100dvh;
+  } */
+
+  /* Mobile-first heading alignment: centered on small, left on md+ */
+  /* .heading-responsive {
+    @apply text-center md:text-left;
+  } */
+
+  /* Float animation */
+  /* .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+} */
+
+/* @keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+} */
+
+/* ::selection {
+  @apply bg-brand-500/30 text-white;
+} */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@variant dark (&:where(.dark, .dark *));
+
+/* CareerLens Theme: Cream + Plum + Antique Gold */
+
+@layer base {
+  :root {
+    color-scheme: light;
+
+    --background: 38 67% 97%;
+    --foreground: 276 30% 15%;
+
+    /* Cards always stay light */
+    --card: 38 60% 99%;
+    --card-foreground: 276 30% 15%;
+    --popover: 38 60% 99%;
+    --popover-foreground: 276 30% 15%;
+
+    --primary: 276 35% 32%;
+    --primary-foreground: 40 60% 98%;
+
+    --secondary: 35 38% 91%;
+    --secondary-foreground: 276 30% 20%;
+
+    --muted: 35 30% 92%;
+    --muted-foreground: 270 12% 42%;
+
+    --accent: 43 68% 55%;
+    --accent-foreground: 276 30% 15%;
+
+    --destructive: 0 65% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 22% 85%;
+    --input: 30 22% 85%;
+    --ring: 276 35% 45%;
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    --background: 276 29% 7%;
+    --foreground: 35 30% 95%;
+
+    /* Light cards in dark mode too */
+    --card: 38 60% 99%;
+    --card-foreground: 276 30% 15%;
+    --popover: 38 60% 99%;
+    --popover-foreground: 276 30% 15%;
+
+    --primary: 276 42% 66%;
+    --primary-foreground: 276 35% 10%;
+
+    --secondary: 276 20% 16%;
+    --secondary-foreground: 35 30% 95%;
+
+    --muted: 276 18% 15%;
+    --muted-foreground: 270 12% 70%;
+
+    --accent: 43 65% 58%;
+    --accent-foreground: 276 35% 10%;
+
+    --destructive: 0 55% 42%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 276 18% 21%;
+    --input: 276 18% 21%;
+    --ring: 276 42% 66%;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    @apply border-gray-200 dark:border-white/10;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    max-width: 100%;
+    overflow-x: hidden;
+    background: #fff8ed;
+  }
+
+  html.dark {
+    background: #130d18;
+  }
+
+  body {
+    background-color: #fff8ed;
+    color: #302038;
+    @apply antialiased;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    max-width: 100%;
+    overflow-x: hidden;
+    transition: background-color 220ms ease, color 220ms ease;
+  }
+
+  .dark body {
+    background-color: #130d18;
+    color: #f5edf5;
+  }
+
+  #root {
+    min-height: 100%;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-brand-500/50 ring-offset-2;
+  }
+
+  :root *:focus-visible {
+    --tw-ring-offset-color: #fff8ed;
+  }
+
+  .dark *:focus-visible {
+    --tw-ring-offset-color: #130d18;
+  }
+}
+
+@layer utilities {
+  /* Cards always use light cream background */
+
+  .glass-card {
+    @apply rounded-2xl border shadow-sm;
+
+    background: #FFFAF2;
+    color: #302038;
+    border-color: rgba(74, 45, 72, 0.16);
+
+    box-shadow: 0 8px 24px rgba(67, 42, 53, 0.08);
+
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .glass-card:hover {
+    border-color: rgba(125, 77, 135, 0.42);
+    box-shadow: 0 10px 28px rgba(67, 42, 53, 0.12);
+  }
+
+  .dark .glass-card {
+    background: #FFFAF2;
+    color: #302038;
+    border-color: rgba(74, 45, 72, 0.16);
+
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  }
+
+  .dark .glass-card:hover {
+    border-color: rgba(125, 77, 135, 0.42);
+  }
+
+  /* Inputs remain light in both themes */
+
+  .glass-input {
+    @apply rounded-xl border text-sm shadow-sm transition-all;
+
+    background: #FFFDFA;
+    border-color: #E6D9DF;
+    color: #302038;
+
+    @apply focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20;
+  }
+
+  .dark .glass-input {
+    background: #FFFDFA;
+    border-color: #E6D9DF;
+    color: #302038;
+  }
+
+  .dark .glass-input:focus {
+    border-color: #A98BB8;
+    box-shadow: 0 0 0 3px rgba(169, 139, 184, 0.2);
+  }
+
+  /* Brand gradient */
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-purple-400 via-fuchsia-300 to-amber-300 bg-clip-text text-transparent;
+  }
+
+  /* Subtle purple glow */
+
+  .glow-brand {
+    box-shadow:
+      0 0 18px rgba(147, 104, 163, 0.2),
+      0 0 42px rgba(147, 104, 163, 0.07);
+  }
+
+  .glow-brand:hover {
+    box-shadow:
+      0 0 22px rgba(147, 104, 163, 0.28),
+      0 0 52px rgba(147, 104, 163, 0.1);
+  }
+
+  /* Custom scrollbar */
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #9b879b;
+    border-radius: 3px;
+  }
+
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #625167;
+  }
+
+  /* Resume visualization scrollbar */
+
+  .viz-preview-scroll {
+    scrollbar-width: thin;
+    scrollbar-color:
+      rgba(125, 77, 135, 0.45)
+      rgba(80, 50, 75, 0.06);
+  }
+
+  .viz-preview-scroll::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  .viz-preview-scroll::-webkit-scrollbar-track {
+    margin: 4px 0;
+    background: rgba(80, 50, 75, 0.06);
+    border-radius: 8px;
+  }
+
+  .viz-preview-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      180deg,
+      rgba(125, 77, 135, 0.5),
+      rgba(169, 139, 184, 0.5)
+    );
+
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .viz-preview-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+      180deg,
+      rgba(125, 77, 135, 0.75),
+      rgba(169, 139, 184, 0.75)
+    );
+
+    background-clip: padding-box;
+  }
+
+  .dark .viz-preview-scroll {
+    scrollbar-color:
+      rgba(169, 139, 184, 0.4)
+      rgba(19, 13, 24, 0.65);
+  }
+
+  .dark .viz-preview-scroll::-webkit-scrollbar-track {
+    background: rgba(19, 13, 24, 0.55);
+  }
+
+  .dark .viz-preview-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      180deg,
+      rgba(125, 77, 135, 0.38),
+      rgba(169, 139, 184, 0.38)
+    );
+
+    background-clip: padding-box;
+  }
+
+  .dark .viz-preview-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+      180deg,
+      rgba(169, 139, 184, 0.55),
+      rgba(194, 161, 202, 0.48)
+    );
+
+    background-clip: padding-box;
+  }
+
+  /* Dashboard scrolling */
+
+  .dashboard-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+
+  /* Mobile viewport height */
+
+  .dvh-screen {
+    height: 100dvh;
+  }
+
+  /* Responsive heading alignment */
+
+  .heading-responsive {
+    @apply text-center md:text-left;
+  }
+
+  /* Float animation */
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+::selection {
+  background: rgba(125, 77, 135, 0.28);
+  color: #302038;
+}
+
+.dark ::selection {
+  background: rgba(169, 139, 184, 0.3);
+  color: #fff8ed;
+}

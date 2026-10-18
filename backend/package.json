@@ -1,0 +1,57 @@
+{
+  "name": "careerlens-backend",
+  "version": "1.0.0",
+  "description": "AI Resume Analyzer & Job Matcher - Backend API",
+  "main": "src/server.js",
+  "scripts": {
+    "postinstall": "prisma generate",
+    "dev": "node --watch src/server.js",
+    "build": "prisma generate && node scripts/check-js.js",
+    "start": "node src/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma db push",
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "node prisma/seed.js",
+    "vercel-build": "prisma generate && node scripts/check-js.js"
+  },
+  "keywords": [
+    "resume",
+    "ai",
+    "ats",
+    "job-matcher"
+  ],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": "20.x"
+  },
+  "overrides": {
+    "afinn-165": "1.0.4",
+    "uuid": "9.0.1"
+  },
+  "dependencies": {
+    "@google/genai": "^2.30.0",
+    "@google/generative-ai": "^0.24.1",
+    "@prisma/client": "^6.5.0",
+    "bcryptjs": "^2.4.3",
+    "cheerio": "^1.2.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "google-auth-library": "^10.6.2",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.12.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "natural": "^8.1.1",
+    "pdf-parse": "^1.1.1",
+    "stopword": "^3.1.5",
+    "zod": "^3.24.2",
+    "razorpay": "^2.9.6"
+  },
+  "devDependencies": {
+    "prisma": "^6.5.0"
+  }
+}

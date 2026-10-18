@@ -1,0 +1,18 @@
+# Dependencies and builds
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Tooling
+.vercel/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.log
