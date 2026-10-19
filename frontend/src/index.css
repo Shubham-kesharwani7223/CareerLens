@@ -205,27 +205,32 @@
 
 
 
+
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
 @variant dark (&:where(.dark, .dark *));
 
-/* CareerLens Theme: Cream + Plum + Antique Gold */
+/* =========================================================
+   CareerLens Design System
+   Light: Warm Cream + Plum + Antique Gold
+   Dark: Deep Plum + Near Black + Lavender + Muted Gold
+   ========================================================= */
 
 @layer base {
   :root {
     color-scheme: light;
 
-    --background: 38 67% 97%;
+    --background: 38 50% 96%;
     --foreground: 276 30% 15%;
 
-    /* Cards always stay light */
     --card: 38 60% 99%;
     --card-foreground: 276 30% 15%;
+
     --popover: 38 60% 99%;
     --popover-foreground: 276 30% 15%;
 
-    --primary: 276 35% 32%;
+    --primary: 276 22% 35%;
     --primary-foreground: 40 60% 98%;
 
     --secondary: 35 38% 91%;
@@ -234,7 +239,7 @@
     --muted: 35 30% 92%;
     --muted-foreground: 270 12% 42%;
 
-    --accent: 43 68% 55%;
+    --accent: 43 45% 55%;
     --accent-foreground: 276 30% 15%;
 
     --destructive: 0 65% 48%;
@@ -242,39 +247,40 @@
 
     --border: 30 22% 85%;
     --input: 30 22% 85%;
-    --ring: 276 35% 45%;
+    --ring: 276 25% 48%;
   }
 
   .dark {
     color-scheme: dark;
 
     --background: 276 29% 7%;
-    --foreground: 35 30% 95%;
+    --foreground: 276 15% 95%;
 
-    /* Light cards in dark mode too */
-    --card: 38 60% 99%;
-    --card-foreground: 276 30% 15%;
-    --popover: 38 60% 99%;
-    --popover-foreground: 276 30% 15%;
+    /* Dark cards and popovers */
+    --card: 276 24% 10%;
+    --card-foreground: 276 15% 95%;
 
-    --primary: 276 42% 66%;
+    --popover: 276 24% 10%;
+    --popover-foreground: 276 15% 95%;
+
+    --primary: 276 28% 68%;
     --primary-foreground: 276 35% 10%;
 
     --secondary: 276 20% 16%;
-    --secondary-foreground: 35 30% 95%;
+    --secondary-foreground: 276 15% 95%;
 
     --muted: 276 18% 15%;
-    --muted-foreground: 270 12% 70%;
+    --muted-foreground: 276 12% 72%;
 
-    --accent: 43 65% 58%;
-    --accent-foreground: 276 35% 10%;
+    --accent: 43 55% 60%;
+    --accent-foreground: 276 30% 10%;
 
     --destructive: 0 55% 42%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 276 18% 21%;
-    --input: 276 18% 21%;
-    --ring: 276 42% 66%;
+    --border: 276 18% 23%;
+    --input: 276 18% 23%;
+    --ring: 276 28% 68%;
   }
 
   *,
@@ -291,26 +297,29 @@
     scroll-behavior: smooth;
     max-width: 100%;
     overflow-x: hidden;
-    background: #fff8ed;
+    background: #f7f0e5;
   }
 
   html.dark {
-    background: #130d18;
+    background: #100b15;
   }
 
   body {
-    background-color: #fff8ed;
+    background-color: #f7f0e5;
     color: #302038;
     @apply antialiased;
     font-family: "Inter", system-ui, -apple-system, sans-serif;
     max-width: 100%;
+    min-width: 0;
     overflow-x: hidden;
-    transition: background-color 220ms ease, color 220ms ease;
+    transition:
+      background-color 220ms ease,
+      color 220ms ease;
   }
 
   .dark body {
-    background-color: #130d18;
-    color: #f5edf5;
+    background-color: #100b15;
+    color: #f7f1fa;
   }
 
   #root {
@@ -326,92 +335,145 @@
   }
 
   :root *:focus-visible {
-    --tw-ring-offset-color: #fff8ed;
+    --tw-ring-offset-color: #f7f0e5;
   }
 
   .dark *:focus-visible {
-    --tw-ring-offset-color: #130d18;
+    --tw-ring-offset-color: #100b15;
   }
 }
 
+/* =========================================================
+   Utility Components
+   ========================================================= */
+
 @layer utilities {
-  /* Cards always use light cream background */
+  /* Cards: cream in light mode, deep plum in dark mode */
 
   .glass-card {
     @apply rounded-2xl border shadow-sm;
 
-    background: #FFFAF2;
+    background: #fffaf2;
     color: #302038;
-    border-color: rgba(74, 45, 72, 0.16);
+    border-color: rgba(74, 45, 72, 0.15);
 
-    box-shadow: 0 8px 24px rgba(67, 42, 53, 0.08);
+    box-shadow: 0 8px 24px rgba(67, 42, 53, 0.07);
 
     transition:
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
+      background-color 220ms ease,
+      color 220ms ease,
+      border-color 220ms ease,
+      box-shadow 220ms ease;
   }
 
   .glass-card:hover {
-    border-color: rgba(125, 77, 135, 0.42);
+    border-color: rgba(107, 75, 104, 0.4);
     box-shadow: 0 10px 28px rgba(67, 42, 53, 0.12);
   }
 
   .dark .glass-card {
-    background: #FFFAF2;
-    color: #302038;
-    border-color: rgba(74, 45, 72, 0.16);
+    background: #19121f;
+    color: #f7f1fa;
+    border-color: rgba(183, 137, 181, 0.24);
 
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   }
 
   .dark .glass-card:hover {
-    border-color: rgba(125, 77, 135, 0.42);
+    background: #211626;
+    border-color: rgba(183, 137, 181, 0.42);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
   }
 
-  /* Inputs remain light in both themes */
+  /* Inputs: theme-aware surfaces */
 
   .glass-input {
     @apply rounded-xl border text-sm shadow-sm transition-all;
 
-    background: #FFFDFA;
-    border-color: #E6D9DF;
+    background: #fffdfa;
+    border-color: #e6d9df;
     color: #302038;
 
     @apply focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20;
+
+    transition:
+      background-color 220ms ease,
+      color 220ms ease,
+      border-color 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .glass-input::placeholder {
+    color: #8a7b8c;
   }
 
   .dark .glass-input {
-    background: #FFFDFA;
-    border-color: #E6D9DF;
-    color: #302038;
+    background: #211626;
+    border-color: #49344f;
+    color: #fbf7ff;
+  }
+
+  .dark .glass-input::placeholder {
+    color: #aa9bb4;
   }
 
   .dark .glass-input:focus {
-    border-color: #A98BB8;
+    background: #261a2d;
+    border-color: #a98bb8;
     box-shadow: 0 0 0 3px rgba(169, 139, 184, 0.2);
+  }
+
+  /* Selects, textareas and native form controls */
+
+  select,
+  textarea,
+  input {
+    accent-color: #89618c;
+  }
+
+  .dark select,
+  .dark textarea,
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+    color-scheme: dark;
   }
 
   /* Brand gradient */
 
   .text-gradient {
-    @apply bg-gradient-to-r from-purple-400 via-fuchsia-300 to-amber-300 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#89618c] via-[#a77ba4] to-[#b58a3a] bg-clip-text text-transparent;
   }
 
-  /* Subtle purple glow */
+  .dark .text-gradient {
+    @apply bg-gradient-to-r from-[#c2a0ce] via-[#b58aaf] to-[#e0bd70] bg-clip-text text-transparent;
+  }
+
+  /* Subtle brand glow */
 
   .glow-brand {
     box-shadow:
-      0 0 18px rgba(147, 104, 163, 0.2),
-      0 0 42px rgba(147, 104, 163, 0.07);
+      0 0 18px rgba(107, 75, 104, 0.16),
+      0 0 42px rgba(107, 75, 104, 0.06);
   }
 
   .glow-brand:hover {
     box-shadow:
-      0 0 22px rgba(147, 104, 163, 0.28),
-      0 0 52px rgba(147, 104, 163, 0.1);
+      0 0 22px rgba(107, 75, 104, 0.25),
+      0 0 52px rgba(107, 75, 104, 0.1);
+  }
+
+  .dark .glow-brand {
+    box-shadow:
+      0 0 18px rgba(169, 139, 184, 0.12),
+      0 0 42px rgba(169, 139, 184, 0.04);
+  }
+
+  .dark .glow-brand:hover {
+    box-shadow:
+      0 0 22px rgba(169, 139, 184, 0.2),
+      0 0 52px rgba(169, 139, 184, 0.08);
   }
 
   /* Custom scrollbar */
@@ -462,7 +524,6 @@
       rgba(125, 77, 135, 0.5),
       rgba(169, 139, 184, 0.5)
     );
-
     border-radius: 8px;
     border: 2px solid transparent;
     background-clip: padding-box;
@@ -474,7 +535,6 @@
       rgba(125, 77, 135, 0.75),
       rgba(169, 139, 184, 0.75)
     );
-
     background-clip: padding-box;
   }
 
@@ -494,7 +554,6 @@
       rgba(125, 77, 135, 0.38),
       rgba(169, 139, 184, 0.38)
     );
-
     background-clip: padding-box;
   }
 
@@ -504,7 +563,6 @@
       rgba(169, 139, 184, 0.55),
       rgba(194, 161, 202, 0.48)
     );
-
     background-clip: padding-box;
   }
 
@@ -535,15 +593,149 @@
   }
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
+/* =========================================================
+   Theme consistency for CareerLens pages and cards
+   ========================================================= */
 
-  50% {
-    transform: translateY(-10px);
-  }
+/* Main application surfaces */
+
+.career-lens-page,
+.resume-analysis-page {
+  background-color: #f7f0e5;
+  color: #302038;
+  transition:
+    background-color 220ms ease,
+    color 220ms ease;
 }
+
+.dark .career-lens-page,
+.dark .resume-analysis-page {
+  background-color: #100b15;
+  color: #f7f1fa;
+}
+
+/* Standard shadcn cards */
+
+[data-slot="card"] {
+  background-color: #fffaf2;
+  color: #302038;
+  border-color: #e4d6dc;
+  transition:
+    background-color 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.dark [data-slot="card"] {
+  background-color: #19121f !important;
+  color: #f7f1fa !important;
+  border-color: #3c2b43 !important;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 16%);
+}
+
+/* Card headings */
+
+[data-slot="card-title"] {
+  color: #302038;
+}
+
+.dark [data-slot="card-title"],
+.dark [data-slot="card"] h1,
+.dark [data-slot="card"] h2,
+.dark [data-slot="card"] h3 {
+  color: #fbf7ff;
+}
+
+/* Card descriptions */
+
+[data-slot="card-description"] {
+  color: #796a7d;
+}
+
+.dark [data-slot="card-description"] {
+  color: #c5b8ce;
+}
+
+/* Override hard-coded cream surfaces nested inside cards */
+
+.dark [data-slot="card"] [class*="bg-[#fffaf"],
+.dark [data-slot="card"] [class*="bg-[#fffdfa"],
+.dark [data-slot="card"] [class*="bg-[#fcf6ed"],
+.dark [data-slot="card"] [class*="bg-[#f7f0e5"],
+.dark [data-slot="card"] [class*="bg-[#f5edf5"],
+.dark [data-slot="card"] [class*="bg-[#f4ead3"],
+.dark [data-slot="card"] [class*="bg-[#f3e8f3"] {
+  background-color: #211626 !important;
+}
+
+/* Nested panel text */
+
+.dark [data-slot="card"] [class*="text-[#29182f"],
+.dark [data-slot="card"] [class*="text-[#2f1d32"],
+.dark [data-slot="card"] [class*="text-[#302038"],
+.dark [data-slot="card"] [class*="text-[#44334b"] {
+  color: #f1e8f5 !important;
+}
+
+/* Secondary text */
+
+.dark [data-slot="card"] .text-gray-500,
+.dark [data-slot="card"] .text-gray-600,
+.dark [data-slot="card"] [class*="text-[#796a7d"],
+.dark [data-slot="card"] [class*="text-[#695a70"],
+.dark [data-slot="card"] [class*="text-[#806f82"] {
+  color: #c5b8ce !important;
+}
+
+/* Nested borders */
+
+.dark [data-slot="card"] [class*="border-[#e4d6dc"],
+.dark [data-slot="card"] [class*="border-[#eee4e9"],
+.dark [data-slot="card"] [class*="border-[#d8cbd9"] {
+  border-color: #49344f !important;
+}
+
+/* Progress tracks */
+
+.dark [data-slot="card"] [class*="bg-[#e9dfe8"],
+.dark [data-slot="card"] [class*="bg-[#e8dfe9"] {
+  background-color: #3c2b43 !important;
+}
+
+/* Inputs and search fields inside cards */
+
+.dark [data-slot="card"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.dark [data-slot="card"] textarea,
+.dark [data-slot="card"] select {
+  background-color: #211626;
+  color: #fbf7ff;
+  border-color: #49344f;
+}
+
+.dark [data-slot="card"] input::placeholder,
+.dark [data-slot="card"] textarea::placeholder {
+  color: #aa9bb4;
+}
+
+/* Preserve score/status colors */
+
+.dark [data-slot="card"] .text-green-500,
+.dark [data-slot="card"] .text-green-600 {
+  color: #4ade80 !important;
+}
+
+.dark [data-slot="card"] .text-amber-500,
+.dark [data-slot="card"] .text-amber-600 {
+  color: #fbbf24 !important;
+}
+
+.dark [data-slot="card"] .text-red-500,
+.dark [data-slot="card"] .text-red-600 {
+  color: #f87171 !important;
+}
+
+/* Selection */
 
 ::selection {
   background: rgba(125, 77, 135, 0.28);
@@ -553,4 +745,17 @@
 .dark ::selection {
   background: rgba(169, 139, 184, 0.3);
   color: #fff8ed;
+}
+
+/* Animations */
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
