@@ -1,7 +1,7 @@
 generator client {
   provider      = "prisma-client-js"
-  // Vercel serverless runs on Linux; without this, the query engine for deployment can be missing at runtime.
-  // See https://www.prisma.io/docs/orm/prisma-client/deployment/serverless/deploy-to-vercel
+  // Vercel serverless runs on Linux; without this, the query engine
+  // for deployment can be missing at runtime.
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -11,33 +11,44 @@ datasource db {
 }
 
 model User {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  name             String
-  email            String   @unique
-  password         String
-  role             String   @default("fresher")
-  isPro            Boolean  @default(false)
-  aiCredits        Int      @default(5)
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  name                 String
+  email                String   @unique
+  password             String
+  role                 String   @default("fresher")
+  isPro                Boolean  @default(false)
+  aiCredits            Int      @default(1)
+
+  // Portion of aiCredits granted by the current Pro billing cycle.
+  // Purchased/free credits are tracked as:
+  // aiCredits - subscriptionCredits
+  subscriptionCredits  Int?     @default(0)
+
   razorpaySubscriptionId String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  resumes          Resume[]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  resumes              Resume[]
 
   @@map("users")
 }
 
 model Resume {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String    @db.ObjectId
-  fileUrl   String
-  fileName  String
-  atsScore  Int?
-  /// Raw text from the last successful analysis (used when the file is gone on /tmp, e.g. Vercel)
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String    @db.ObjectId
+  fileUrl          String
+  fileName         String
+  atsScore         Int?
+
+  /// Raw text from the last successful analysis.
+  /// Used when a file is no longer available on temporary storage.
   storedResumeText String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  analysis  Analysis?
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysis         Analysis?
 
   @@map("resumes")
 }
@@ -55,6 +66,7 @@ model Analysis {
   missingKeywords String[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
   resume          Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 
   @@map("analyses")
@@ -69,7 +81,6 @@ model Feedback {
 
   @@map("feedbacks")
 }
-
 
 model Payment {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId

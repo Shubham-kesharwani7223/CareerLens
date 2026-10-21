@@ -6,9 +6,9 @@ exports.detectDynamicSkills = detectDynamicSkills;
 exports.classifyIndustry = classifyIndustry;
 exports.runNlpAnalysis = runNlpAnalysis;
 const stopword_1 = require("stopword");
-// ══════════════════════════════════════════════════════════════════
+
 // ── NLP Engine: TF-IDF, Dynamic Skill Extraction, Semantic Match
-// ══════════════════════════════════════════════════════════════════
+
 /**
  * Eagerly importing `natural` breaks Vercel serverless cold starts (bundler/runtime);
  * we load it only when NLP code runs (e.g. resume analysis), not for OPTIONS/health.
@@ -87,9 +87,9 @@ const VALID_ACRONYMS = new Set([
     "LSTM", "CNN", "RNN", "GAN", "BERT", "GPT", "LLM",
     "SOAP", "GRPC", "MQTT", "AMQP", "SMTP", "FTP", "SFTP",
 ]);
-// ══════════════════════════════════════════════════════════════════
+
 // ── TF-IDF Keyword Extraction ────────────────────────────────────
-// ══════════════════════════════════════════════════════════════════
+
 function extractKeywordsTfIdf(text, topN = 30) {
     const TfIdf = loadNatural().TfIdf;
     const tfidf = new TfIdf();
@@ -117,9 +117,9 @@ function extractKeywordsTfIdf(text, topN = 30) {
     terms.sort((a, b) => b.score - a.score);
     return terms.slice(0, topN).map((t) => t.term);
 }
-// ══════════════════════════════════════════════════════════════════
+
 // ── N-gram Extraction (for multi-word skills) ────────────────────
-// ══════════════════════════════════════════════════════════════════
+
 function extractNgrams(text, n = 2) {
     const words = getTokenizer().tokenize(text.toLowerCase()) || [];
     const filtered = (0, stopword_1.removeStopwords)(words);
@@ -142,9 +142,9 @@ function extractNgrams(text, n = 2) {
         .slice(0, 20)
         .map(([gram]) => gram);
 }
-// ══════════════════════════════════════════════════════════════════
+
 // ── Dynamic Skill Detection ──────────────────────────────────────
-// ══════════════════════════════════════════════════════════════════
+
 function detectDynamicSkills(text) {
     const found = new Set();
     for (const pattern of DYNAMIC_SKILL_PATTERNS) {
@@ -170,9 +170,9 @@ function detectDynamicSkills(text) {
     }
     return Array.from(found);
 }
-// ══════════════════════════════════════════════════════════════════
+
 // ── Semantic Industry Classification ─────────────────────────────
-// ══════════════════════════════════════════════════════════════════
+
 // Industry "profile vectors": weighted keyword lists with importance scores
 const INDUSTRY_PROFILES = [
     {

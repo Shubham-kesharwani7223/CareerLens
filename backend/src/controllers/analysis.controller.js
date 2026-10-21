@@ -41,8 +41,8 @@ const response_1 = require("../helpers/response");
 const http_errors_1 = require("../utils/http-errors");
 const credits_1 = require("../middlewares/credits");
 const JOB_FETCH_TIMEOUT_MS = 12000;
-const JOB_FETCH_UA = "Mozilla/5.0 (compatible; ResumeAI/1.0)";
-/** Fetch HTML for job URL scraping (native fetch — reliable on Vercel serverless vs dynamic axios import). */
+const JOB_FETCH_UA = "Mozilla/5.0 (compatible; CareerLens/1.0)";
+
 async function fetchJobPageHtml(jobUrl) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), JOB_FETCH_TIMEOUT_MS);

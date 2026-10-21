@@ -70,9 +70,9 @@ function isDegenerateAnalysis(ats, skills, exp, edu, proj) {
         return true;
     return false;
 }
-// ══════════════════════════════════════════════════════════════════
+
 // ── Robust Text Extraction & Normalization ───────────────────────
-// ══════════════════════════════════════════════════════════════════
+
 /**
  * Normalize text extracted from PDF/DOCX:
  * - Fix multi-column jumble by re-ordering lines
@@ -337,9 +337,9 @@ function extractSections(text) {
     }
     return result;
 }
-// ══════════════════════════════════════════════════════════════════
+
 // ── AI Analysis Engine ───────────────────────────────────────────
-// ══════════════════════════════════════════════════════════════════
+
 class AnalysisEngine {
     /** Collect soft-skill labels from dictionary + phrase heuristics (stable order). */
     static findSoftSkillsInText(raw) {
@@ -1535,7 +1535,7 @@ class AnalysisEngine {
         const lower = text.toLowerCase();
         const skills = AnalysisEngine.TECH_KEYWORDS.filter((k) => lower.includes(k));
         const projectBank = [
-            { title: "AI Resume Analyzer", description: "Build a tool that parses resumes and provides ATS scoring using NLP", techStack: ["Python", "FastAPI", "React", "spaCy"], difficulty: "Advanced", matchKeywords: ["python", "machine learning", "nlp", "data analysis"] },
+            { title: "AI Career Insights Platform", description: "Build a tool that analyzes career profiles and provides personalized skill insights", techStack: ["Python", "FastAPI", "React", "spaCy"], difficulty: "Advanced", matchKeywords: ["python", "machine learning", "nlp", "data analysis"] },
             { title: "Real-time Chat Application", description: "Build a full-stack chat app with WebSockets, auth, and message persistence", techStack: ["React", "Node.js", "Socket.io", "MongoDB"], difficulty: "Intermediate", matchKeywords: ["react", "node.js", "javascript", "mongodb"] },
             { title: "E-commerce Platform", description: "Build a complete online store with payments, cart, and admin dashboard", techStack: ["Next.js", "Stripe", "PostgreSQL", "Tailwind"], difficulty: "Advanced", matchKeywords: ["react", "next.js", "javascript", "typescript", "sql"] },
             { title: "ML Recommendation System", description: "Build a movie/product recommendation engine using collaborative filtering", techStack: ["Python", "Scikit-Learn", "Pandas", "Flask"], difficulty: "Intermediate", matchKeywords: ["python", "machine learning", "pandas", "scikit-learn"] },
