@@ -96,7 +96,7 @@ export function PricingPage() {
             }
             const checkout = new window.Razorpay({
                 key: data.keyId, subscription_id: data.subscriptionId, name: "CareerLens",
-                description: "CareerLens Pro monthly subscription", image: "/logo.png",
+                description: "CareerLens Pro monthly subscription",
                 prefill: { name: user?.name || data.name || "", email: user?.email || data.email || "" },
                 theme: { color: "#694B68" },
                 handler: async (paymentResponse) => {
