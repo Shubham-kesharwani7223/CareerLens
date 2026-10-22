@@ -1,3 +1,4 @@
+
 "use strict";
 
 var __importDefault =
@@ -12,26 +13,39 @@ exports.authService = exports.AuthService = void 0;
 const node_crypto_1 = require("node:crypto");
 const database_1 = __importDefault(require("../config/database"));
 const env_1 = require("../config/env");
+const password_1 = require("../helpers/password");
+const jwt_1 = require("../helpers/jwt");
 
+// Admin access is determined by the configured email, not career role.
 function isAdminEmail(email) {
   const adminEmail = String(env_1.env.ADMIN_EMAIL || "")
     .trim()
     .toLowerCase();
 
+  const userEmail = String(email || "")
+    .trim()
+    .toLowerCase();
+
   return Boolean(
-    adminEmail &&
-    email &&
-    String(email).trim().toLowerCase() === adminEmail
+    adminEmail && userEmail && userEmail === adminEmail
   );
 }
 
-const password_1 = require("../helpers/password");
-const jwt_1 = require("../helpers/jwt");
-
 class AuthService {
   async register(data) {
+    const email = String(data.email || "")
+      .trim()
+      .toLowerCase();
+
+    // The configured administrator must use verified Google authentication.
+    if (isAdminEmail(email)) {
+      throw new Error(
+        "Use verified Google sign-up for the administrator account."
+      );
+    }
+
     const existingUser = await database_1.default.user.findUnique({
-      where: { email: data.email },
+      where: { email },
     });
 
     if (existingUser) {
@@ -45,12 +59,12 @@ class AuthService {
     const user = await database_1.default.user.create({
       data: {
         name: data.name,
-        email: data.email,
+        email,
         password: hashedPassword,
         role:
-          data.role === "other" && data.customRole
-            ? data.customRole
-            : data.role,
+          data.role === "other" && data.customRole?.trim()
+            ? data.customRole.trim()
+            : data.role || "fresher",
       },
       select: {
         id: true,
@@ -79,8 +93,19 @@ class AuthService {
   }
 
   async login(data) {
+    const email = String(data.email || "")
+      .trim()
+      .toLowerCase();
+
+    // The configured admin account uses Google Login.
+    if (isAdminEmail(email)) {
+      throw new Error(
+        "Please use Google Login for the administrator account."
+      );
+    }
+
     const user = await database_1.default.user.findUnique({
-      where: { email: data.email },
+      where: { email },
     });
 
     if (!user) {
@@ -143,8 +168,20 @@ class AuthService {
   }
 
   async googleAuth(data) {
-    let user = await database_1.default.user.findUnique({
-      where: { email: data.email },
+    const email = String(data.email || "")
+      .trim()
+      .toLowerCase();
+
+    if (!email) {
+      throw new Error("Google account email is missing");
+    }
+
+    if (data.mode !== "login" && data.mode !== "signup") {
+      throw new Error("Invalid Google authentication mode");
+    }
+
+    const user = await database_1.default.user.findUnique({
+      where: { email },
       select: {
         id: true,
         name: true,
@@ -157,8 +194,36 @@ class AuthService {
       },
     });
 
-    if (!user) {
-      // Create a hashed random password for Google-only accounts.
+    let authenticatedUser = user;
+
+    if (data.mode === "login" && !user) {
+      // Login must not silently register a new account.
+      throw new Error(
+        "Google account not registered. Please sign up first."
+      );
+    }
+
+    if (data.mode === "signup" && user) {
+      // Signup should not silently log in an existing account.
+      throw new Error(
+        "Google account already registered. Please log in instead."
+      );
+    }
+
+    if (data.mode === "signup" && !user) {
+      const requestedRole =
+        data.role === "other" && data.customRole?.trim()
+          ? data.customRole.trim()
+          : data.role || "fresher";
+
+      if (
+        data.role === "other" &&
+        (!data.customRole || data.customRole.trim().length < 2)
+      ) {
+        throw new Error("Please specify your career role.");
+      }
+
+      // Google-only accounts receive a random hashed password.
       const randomSecret = (0, node_crypto_1.randomBytes)(32)
         .toString("hex");
 
@@ -167,12 +232,12 @@ class AuthService {
         password_1.hashPassword
       )(randomSecret);
 
-      user = await database_1.default.user.create({
+      authenticatedUser = await database_1.default.user.create({
         data: {
           name: data.name,
-          email: data.email,
+          email,
           password: oauthOnlyPassword,
-          role: "fresher",
+          role: requestedRole,
           isPro: false,
           aiCredits: 1,
         },
@@ -190,14 +255,14 @@ class AuthService {
     }
 
     const token = (0, jwt_1.generateToken)({
-      userId: user.id,
-      email: user.email,
+      userId: authenticatedUser.id,
+      email: authenticatedUser.email,
     });
 
     return {
       user: {
-        ...user,
-        isAdmin: isAdminEmail(user.email),
+        ...authenticatedUser,
+        isAdmin: isAdminEmail(authenticatedUser.email),
       },
       token,
     };

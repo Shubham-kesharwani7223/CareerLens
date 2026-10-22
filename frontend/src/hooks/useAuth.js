@@ -14,6 +14,7 @@ export const useAuth = create((set) => ({
             token: response.token,
             isAuthenticated: true,
         });
+        return response;
     },
     register: async (data) => {
         const response = await authApi.register(data);
@@ -23,6 +24,7 @@ export const useAuth = create((set) => ({
             token: response.token,
             isAuthenticated: true,
         });
+        return response;
     },
     logout: () => {
         localStorage.removeItem(TOKEN_KEY);
