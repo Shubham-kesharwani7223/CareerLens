@@ -1,7 +1,7 @@
 generator client {
   provider      = "prisma-client-js"
-  // Vercel serverless runs on Linux; without this, the query engine
-  // for deployment can be missing at runtime.
+  // Vercel serverless runs on Linux; without this, the query engine for deployment can be missing at runtime.
+  // See https://www.prisma.io/docs/orm/prisma-client/deployment/serverless/deploy-to-vercel
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -11,44 +11,36 @@ datasource db {
 }
 
 model User {
-  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
-  name                 String
-  email                String   @unique
-  password             String
-  role                 String   @default("fresher")
-  isPro                Boolean  @default(false)
-  aiCredits            Int      @default(1)
-
-  // Portion of aiCredits granted by the current Pro billing cycle.
-  // Purchased/free credits are tracked as:
-  // aiCredits - subscriptionCredits
-  subscriptionCredits  Int?     @default(0)
-
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  email            String   @unique
+  password         String
+  role             String   @default("fresher")
+  isPro            Boolean  @default(false)
+  isSuspended      Boolean  @default(false)
+  aiCredits        Int      @default(1)
+  // Portion of aiCredits granted by the current Pro billing cycle. Purchased/free credits remain in aiCredits - subscriptionCredits.
+  subscriptionCredits Int?  @default(0)
   razorpaySubscriptionId String?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-
-  resumes              Resume[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  resumes          Resume[]
 
   @@map("users")
 }
 
 model Resume {
-  id               String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId           String    @db.ObjectId
-  fileUrl          String
-  fileName         String
-  atsScore         Int?
-
-  /// Raw text from the last successful analysis.
-  /// Used when a file is no longer available on temporary storage.
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String    @db.ObjectId
+  fileUrl   String
+  fileName  String
+  atsScore  Int?
+  /// Raw text from the last successful analysis (used when the file is gone on /tmp, e.g. Vercel)
   storedResumeText String?
-
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  analysis         Analysis?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysis  Analysis?
 
   @@map("resumes")
 }
@@ -66,7 +58,6 @@ model Analysis {
   missingKeywords String[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-
   resume          Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 
   @@map("analyses")
@@ -77,10 +68,12 @@ model Feedback {
   userId    String   @db.ObjectId
   rating    Int
   comment   String   @default("")
+  adminStatus String? @default("new")
   createdAt DateTime @default(now())
 
   @@map("feedbacks")
 }
+
 
 model Payment {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -89,7 +82,28 @@ model Payment {
   planId    String
   amount    Int
   credits   Int
+  refundedAmount Int? @default(0)
+  refundId String?
+  refundStatus String?
+  refundReason String?
+  lastRefundAmount Int?
+  lastRefundAt DateTime?
   createdAt DateTime @default(now())
 
   @@map("payments")
+}
+
+model AdminAuditLog {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  adminUserId String   @db.ObjectId
+  adminEmail  String
+  action      String
+  targetType  String
+  targetId    String?
+  reason      String
+  beforeValue String?
+  afterValue  String?
+  createdAt   DateTime @default(now())
+
+  @@map("admin_audit_logs")
 }
