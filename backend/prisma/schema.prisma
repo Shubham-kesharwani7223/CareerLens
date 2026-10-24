@@ -107,3 +107,16 @@ model AdminAuditLog {
 
   @@map("admin_audit_logs")
 }
+
+// It records each delivered gamification credit grant exactly once.
+model CreditGrant {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventKey   String   @unique
+  userId     String   @db.ObjectId
+  credits    Int
+  sourceType String
+  sourceId   String
+  createdAt  DateTime @default(now())
+
+  @@map("credit_grants")
+}
