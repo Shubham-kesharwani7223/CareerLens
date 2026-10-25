@@ -13,7 +13,7 @@ Users can create an account, upload a resume, review analysis results, and track
 ✨ Features
 - 📄 Resume upload and parsing — processes supported PDF and DOCX resumes.
 - 🎯 ATS-oriented analysis — evaluates resume dimensions and generates an overall score.
-- 🎤 Mock interview practice — helps users prepare for interviews with practice questions and improve their confidence.
+- 🎤 Mock interview — helps users prepare for interviews with practice questions and improve their confidence.
 - 💡 Actionable feedback — surfaces suggestions, keywords, and missing keywords.
 - 📊 Resume reports — presents analysis results in the interface, with PDF report support in the frontend.
 - 🔐 Authentication — account registration/login with JWT-based authentication and Google sign-in integration.
