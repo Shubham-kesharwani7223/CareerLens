@@ -11,214 +11,265 @@ const response_1 = require("../helpers/response");
 const env_1 = require("../config/env");
 
 class AuthController {
-    async register(req, res, next) {
-        try {
-            const data = auth_1.registerSchema.parse(req.body);
+  async register(req, res, next) {
+    try {
+      const data = auth_1.registerSchema.parse(req.body);
 
-            const result = await auth_service_1.authService.register(data);
+      // Includes referralCode if provided by the signup page.
+      const result = await auth_service_1.authService.register(data);
 
-            (0, response_1.sendSuccess)(res, result, 201);
-        } catch (error) {
-            if (!(error instanceof Error)) {
-                next(error);
-                return;
-            }
+      (0, response_1.sendSuccess)(res, result, 201);
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        next(error);
+        return;
+      }
 
-            if (error.message === "Email already registered") {
-                (0, response_1.sendError)(res, error.message, 409);
-                return;
-            }
+      if (error.message === "Email already registered") {
+        (0, response_1.sendError)(res, error.message, 409);
+        return;
+      }
 
-            if (
-                error.message ===
-                "Use verified Google sign-up for the administrator account."
-            ) {
-                (0, response_1.sendError)(res, error.message, 403);
-                return;
-            }
+      if (
+        error.message ===
+        "Use verified Google sign-up for the administrator account."
+      ) {
+        (0, response_1.sendError)(res, error.message, 403);
+        return;
+      }
 
-            next(error);
-        }
+      if (
+        error.message === "Invalid referral code." ||
+        error.message === "This referral code is not available." ||
+        error.message === "You cannot use your own referral code."
+      ) {
+        (0, response_1.sendError)(res, error.message, 400);
+        return;
+      }
+
+      if (error.message.includes("suspended")) {
+        (0, response_1.sendError)(res, error.message, 403);
+        return;
+      }
+
+      next(error);
     }
+  }
 
-    async login(req, res, next) {
-        try {
-            const data = auth_1.loginSchema.parse(req.body);
+  async login(req, res, next) {
+    try {
+      const data = auth_1.loginSchema.parse(req.body);
+      const result = await auth_service_1.authService.login(data);
 
-            const result = await auth_service_1.authService.login(data);
+      (0, response_1.sendSuccess)(res, result);
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        next(error);
+        return;
+      }
 
-            (0, response_1.sendSuccess)(res, result);
-        } catch (error) {
-            if (!(error instanceof Error)) {
-                next(error);
-                return;
-            }
+      if (error.message === "Invalid email or password") {
+        (0, response_1.sendError)(res, error.message, 401);
+        return;
+      }
 
-            if (error.message === "Invalid email or password") {
-                (0, response_1.sendError)(res, error.message, 401);
-                return;
-            }
+      if (
+        error.message ===
+        "Please use Google Login for the administrator account."
+      ) {
+        (0, response_1.sendError)(res, error.message, 403);
+        return;
+      }
 
-            if (
-                error.message ===
-                "Please use Google Login for the administrator account."
-            ) {
-                (0, response_1.sendError)(res, error.message, 403);
-                return;
-            }
+      if (error.message.includes("suspended")) {
+        (0, response_1.sendError)(res, error.message, 403);
+        return;
+      }
 
-            next(error);
-        }
+      next(error);
     }
+  }
 
-    async getProfile(req, res, next) {
-        try {
-            if (!req.user) {
-                (0, response_1.sendError)(res, "Unauthorized", 401);
-                return;
-            }
+  async getProfile(req, res, next) {
+    try {
+      if (!req.user) {
+        (0, response_1.sendError)(res, "Unauthorized", 401);
+        return;
+      }
 
-            const user = await auth_service_1.authService.getProfile(
-                req.user.userId
-            );
+      const user = await auth_service_1.authService.getProfile(
+        req.user.userId
+      );
 
-            (0, response_1.sendSuccess)(res, user);
-        } catch (error) {
-            next(error);
-        }
+      (0, response_1.sendSuccess)(res, user);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        (error.message === "User not found" ||
+          error.message.includes("suspended"))
+      ) {
+        (0, response_1.sendError)(res, error.message, 403);
+        return;
+      }
+
+      next(error);
     }
+  }
 
-    async googleAuth(req, res, next) {
+  async googleAuth(req, res, next) {
+    try {
+      const parsed = auth_1.googleAuthBodySchema.safeParse(req.body);
+
+      if (!parsed.success) {
+        const first = parsed.error.issues[0];
+
+        (0, response_1.sendError)(
+          res,
+          first?.message || "Invalid request body",
+          400
+        );
+        return;
+      }
+
+      const token = parsed.data.credential.trim();
+
+      let email;
+      let name;
+      let picture;
+      let emailVerified = false;
+
+      // Verify Google ID token on the backend.
+      if (env_1.env.GOOGLE_CLIENT_ID) {
         try {
-            const parsed =
-                auth_1.googleAuthBodySchema.safeParse(req.body);
+          const client = new google_auth_library_1.OAuth2Client(
+            env_1.env.GOOGLE_CLIENT_ID
+          );
 
-            if (!parsed.success) {
-                const first = parsed.error.issues[0];
+          const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: env_1.env.GOOGLE_CLIENT_ID,
+          });
 
-                (0, response_1.sendError)(
-                    res,
-                    first?.message || "Invalid request body",
-                    400
-                );
-                return;
-            }
+          const payload = ticket.getPayload();
 
-            const token = parsed.data.credential.trim();
-            const isLikelyIdToken = token.split(".").length === 3;
-
-            let email;
-            let name;
-            let picture;
-
-            // Verify an ID token when the supplied credential is one.
-            if (isLikelyIdToken && env_1.env.GOOGLE_CLIENT_ID) {
-                try {
-                    const client =
-                        new google_auth_library_1.OAuth2Client(
-                            env_1.env.GOOGLE_CLIENT_ID
-                        );
-
-                    const ticket = await client.verifyIdToken({
-                        idToken: token,
-                        audience: env_1.env.GOOGLE_CLIENT_ID,
-                    });
-
-                    const payload = ticket.getPayload();
-
-                    if (
-                        payload?.email &&
-                        payload.email_verified === true
-                    ) {
-                        email = payload.email;
-                        name = payload.name;
-                        picture = payload.picture;
-                    }
-                } catch {
-                    // Try the userinfo endpoint for an access token.
-                }
-            }
-
-            // For an access token, retrieve the profile from Google.
-            if (!email) {
-                const userInfoRes = await fetch(
-                    "https://www.googleapis.com/oauth2/v3/userinfo",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-
-                if (!userInfoRes.ok) {
-                    (0, response_1.sendError)(
-                        res,
-                        "Could not verify Google account. Please try again.",
-                        401
-                    );
-                    return;
-                }
-
-                const profile = await userInfoRes.json();
-
-                if (
-                    !profile?.email ||
-                    profile.email_verified !== true
-                ) {
-                    (0, response_1.sendError)(
-                        res,
-                        "Could not verify Google account. Please try again.",
-                        401
-                    );
-                    return;
-                }
-
-                email = profile.email;
-                name = profile.name;
-                picture = profile.picture;
-            }
-
-            // Pass authentication mode and selected role to the service.
-            const result = await auth_service_1.authService.googleAuth({
-                email,
-                name: name || email.split("@")[0],
-                picture: picture || "",
-                mode: parsed.data.mode,
-                role: parsed.data.role,
-                customRole: parsed.data.customRole,
-            });
-
-            (0, response_1.sendSuccess)(res, result);
-        } catch (error) {
-            if (!(error instanceof Error)) {
-                next(error);
-                return;
-            }
-
-            if (error.message.includes("Token used too late")) {
-                (0, response_1.sendError)(
-                    res,
-                    "Google token expired. Please try again.",
-                    401
-                );
-                return;
-            }
-
-            if (
-                error.message ===
-                "Google account not registered. Please sign up first."
-            ) {
-                (0, response_1.sendError)(
-                    res,
-                    error.message,
-                    404
-                );
-                return;
-            }
-
-            next(error);
+          if (payload?.email && payload.email_verified === true) {
+            email = payload.email;
+            name = payload.name;
+            picture = payload.picture;
+            emailVerified = true;
+          }
+        } catch {
+          // If not an ID token, try the access-token userinfo endpoint.
         }
+      }
+
+      // Verify Google access token when ID-token verification did not work.
+      if (!email) {
+        let userInfoRes;
+
+        try {
+          userInfoRes = await fetch(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+        } catch {
+          (0, response_1.sendError)(
+            res,
+            "Could not contact Google to verify your account.",
+            502
+          );
+          return;
+        }
+
+        if (!userInfoRes.ok) {
+          (0, response_1.sendError)(
+            res,
+            "Could not verify Google account. Please try again.",
+            401
+          );
+          return;
+        }
+
+        const profile = await userInfoRes.json();
+
+        if (!profile?.email || profile.email_verified !== true) {
+          (0, response_1.sendError)(
+            res,
+            "Could not verify Google account. Please use a verified Google account.",
+            401
+          );
+          return;
+        }
+
+        email = profile.email;
+        name = profile.name;
+        picture = profile.picture;
+        emailVerified = true;
+      }
+
+      // Pass referralCode only as signup input; the service validates it.
+      const result = await auth_service_1.authService.googleAuth({
+        email,
+        name: name || email.split("@")[0],
+        picture: picture || "",
+        emailVerified,
+        mode: parsed.data.mode,
+        role: parsed.data.role,
+        customRole: parsed.data.customRole,
+        referralCode: parsed.data.referralCode,
+      });
+
+      (0, response_1.sendSuccess)(res, result);
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        next(error);
+        return;
+      }
+
+      if (
+        error.message ===
+        "Google account not registered. Please sign up first."
+      ) {
+        (0, response_1.sendError)(res, error.message, 404);
+        return;
+      }
+
+      if (
+        error.message ===
+        "Google account already registered. Please log in instead."
+      ) {
+        (0, response_1.sendError)(res, error.message, 409);
+        return;
+      }
+
+      if (
+        error.message === "Please use a verified Google account."
+      ) {
+        (0, response_1.sendError)(res, error.message, 401);
+        return;
+      }
+
+      if (
+        error.message === "Invalid referral code." ||
+        error.message === "This referral code is not available." ||
+        error.message === "You cannot use your own referral code."
+      ) {
+        (0, response_1.sendError)(res, error.message, 400);
+        return;
+      }
+
+      if (error.message.includes("suspended")) {
+        (0, response_1.sendError)(res, error.message, 403);
+        return;
+      }
+
+      next(error);
     }
+  }
 }
 
 exports.AuthController = AuthController;

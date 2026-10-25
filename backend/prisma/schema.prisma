@@ -1,7 +1,7 @@
+
 generator client {
   provider      = "prisma-client-js"
-  // Vercel serverless runs on Linux; without this, the query engine for deployment can be missing at runtime.
-  // See https://www.prisma.io/docs/orm/prisma-client/deployment/serverless/deploy-to-vercel
+  // Vercel serverless deployment support
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -11,36 +11,44 @@ datasource db {
 }
 
 model User {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  name             String
-  email            String   @unique
-  password         String
-  role             String   @default("fresher")
-  isPro            Boolean  @default(false)
-  isSuspended      Boolean  @default(false)
-  aiCredits        Int      @default(1)
-  // Portion of aiCredits granted by the current Pro billing cycle. Purchased/free credits remain in aiCredits - subscriptionCredits.
-  subscriptionCredits Int?  @default(0)
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String
+  email                 String   @unique
+  password              String
+  role                  String   @default("fresher")
+  isPro                 Boolean  @default(false)
+  isSuspended           Boolean  @default(false)
+  aiCredits             Int      @default(1)
+
+  // Credits granted by the current Pro billing cycle
+  subscriptionCredits   Int?     @default(0)
   razorpaySubscriptionId String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  resumes          Resume[]
+
+  // Referral system
+  referralCode          String?  @unique
+  referredById          String?  @db.ObjectId
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  resumes Resume[]
 
   @@map("users")
 }
 
 model Resume {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String    @db.ObjectId
-  fileUrl   String
-  fileName  String
-  atsScore  Int?
-  /// Raw text from the last successful analysis (used when the file is gone on /tmp, e.g. Vercel)
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String   @db.ObjectId
+  fileUrl          String
+  fileName         String
+  atsScore         Int?
+  // Raw resume text retained after successful analysis
   storedResumeText String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  analysis  Analysis?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysis Analysis?
 
   @@map("resumes")
 }
@@ -58,37 +66,37 @@ model Analysis {
   missingKeywords String[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  resume          Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 
   @@map("analyses")
 }
 
 model Feedback {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  rating    Int
-  comment   String   @default("")
-  adminStatus String? @default("new")
-  createdAt DateTime @default(now())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  rating      Int
+  comment     String   @default("")
+  adminStatus String?  @default("new")
+  createdAt   DateTime @default(now())
 
   @@map("feedbacks")
 }
 
-
 model Payment {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  paymentId String   @unique
-  userId    String   @db.ObjectId
-  planId    String
-  amount    Int
-  credits   Int
-  refundedAmount Int? @default(0)
-  refundId String?
-  refundStatus String?
-  refundReason String?
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  paymentId        String   @unique
+  userId           String   @db.ObjectId
+  planId           String
+  amount           Int
+  credits          Int
+  refundedAmount   Int?     @default(0)
+  refundId         String?
+  refundStatus     String?
+  refundReason     String?
   lastRefundAmount Int?
-  lastRefundAt DateTime?
-  createdAt DateTime @default(now())
+  lastRefundAt     DateTime?
+  createdAt        DateTime @default(now())
 
   @@map("payments")
 }
@@ -108,7 +116,7 @@ model AdminAuditLog {
   @@map("admin_audit_logs")
 }
 
-// It records each delivered gamification credit grant exactly once.
+// Records each delivered gamification credit grant exactly once
 model CreditGrant {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   eventKey   String   @unique

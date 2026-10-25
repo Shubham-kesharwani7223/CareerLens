@@ -16,7 +16,7 @@ const env_1 = require("../config/env");
 const password_1 = require("../helpers/password");
 const jwt_1 = require("../helpers/jwt");
 
-// Admin access is determined by the configured email, not career role.
+// Admin access is determined by the server's configured email.
 function isAdminEmail(email) {
   const adminEmail = String(env_1.env.ADMIN_EMAIL || "")
     .trim()
@@ -26,9 +26,73 @@ function isAdminEmail(email) {
     .trim()
     .toLowerCase();
 
-  return Boolean(
-    adminEmail && userEmail && userEmail === adminEmail
-  );
+  return Boolean(adminEmail && userEmail && userEmail === adminEmail);
+}
+
+// Return a consistent, safe user object for the frontend.
+function toPublicUser(user) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    isPro: user.isPro,
+    isSuspended: user.isSuspended === true,
+    aiCredits: user.aiCredits,
+    subscriptionCredits: user.subscriptionCredits || 0,
+    createdAt: user.createdAt,
+    isAdmin: isAdminEmail(user.email),
+  };
+}
+
+function assertNotSuspended(user) {
+  if (user.isSuspended === true) {
+    throw new Error(
+      "Your account has been suspended. Please contact support."
+    );
+  }
+}
+
+// Validate a referral code without trusting client-provided user IDs.
+async function findReferrer(referralCode, newUserEmail) {
+  const code = String(referralCode || "").trim().toUpperCase();
+
+  if (!code) {
+    return null;
+  }
+
+  const referrer = await database_1.default.user.findUnique({
+    where: { referralCode: code },
+    select: {
+      id: true,
+      email: true,
+      isSuspended: true,
+    },
+  });
+
+  if (!referrer) {
+    throw new Error("Invalid referral code.");
+  }
+
+  if (referrer.isSuspended === true) {
+    throw new Error("This referral code is not available.");
+  }
+
+  if (
+    String(referrer.email).trim().toLowerCase() ===
+    String(newUserEmail || "").trim().toLowerCase()
+  ) {
+    throw new Error("You cannot use your own referral code.");
+  }
+
+  return referrer;
+}
+
+// Attach the referrer to the new account during signup.
+async function getReferralData(referralCode, newUserEmail) {
+  const referrer = await findReferrer(referralCode, newUserEmail);
+
+  return referrer ? { referredById: referrer.id } : {};
 }
 
 class AuthService {
@@ -37,7 +101,7 @@ class AuthService {
       .trim()
       .toLowerCase();
 
-    // The configured administrator must use verified Google authentication.
+    // The configured admin account must use verified Google authentication.
     if (isAdminEmail(email)) {
       throw new Error(
         "Use verified Google sign-up for the administrator account."
@@ -52,6 +116,11 @@ class AuthService {
       throw new Error("Email already registered");
     }
 
+    const referralData = await getReferralData(
+      data.referralCode,
+      email
+    );
+
     const hashedPassword = await (0, password_1.hashPassword)(
       data.password
     );
@@ -65,6 +134,7 @@ class AuthService {
           data.role === "other" && data.customRole?.trim()
             ? data.customRole.trim()
             : data.role || "fresher",
+        ...referralData,
       },
       select: {
         id: true,
@@ -72,6 +142,7 @@ class AuthService {
         email: true,
         role: true,
         isPro: true,
+        isSuspended: true,
         aiCredits: true,
         subscriptionCredits: true,
         createdAt: true,
@@ -84,10 +155,7 @@ class AuthService {
     });
 
     return {
-      user: {
-        ...user,
-        isAdmin: isAdminEmail(user.email),
-      },
+      user: toPublicUser(user),
       token,
     };
   }
@@ -97,7 +165,7 @@ class AuthService {
       .trim()
       .toLowerCase();
 
-    // The configured admin account uses Google Login.
+    // The configured administrator account uses Google Login.
     if (isAdminEmail(email)) {
       throw new Error(
         "Please use Google Login for the administrator account."
@@ -111,6 +179,8 @@ class AuthService {
     if (!user) {
       throw new Error("Invalid email or password");
     }
+
+    assertNotSuspended(user);
 
     const isValidPassword = await (
       0,
@@ -127,17 +197,7 @@ class AuthService {
     });
 
     return {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        isPro: user.isPro,
-        aiCredits: user.aiCredits,
-        createdAt: user.createdAt,
-        subscriptionCredits: user.subscriptionCredits || 0,
-        isAdmin: isAdminEmail(user.email),
-      },
+      user: toPublicUser(user),
       token,
     };
   }
@@ -151,6 +211,7 @@ class AuthService {
         email: true,
         role: true,
         isPro: true,
+        isSuspended: true,
         aiCredits: true,
         subscriptionCredits: true,
         createdAt: true,
@@ -161,10 +222,9 @@ class AuthService {
       throw new Error("User not found");
     }
 
-    return {
-      ...user,
-      isAdmin: isAdminEmail(user.email),
-    };
+    assertNotSuspended(user);
+
+    return toPublicUser(user);
   }
 
   async googleAuth(data) {
@@ -174,6 +234,11 @@ class AuthService {
 
     if (!email) {
       throw new Error("Google account email is missing");
+    }
+
+    // The controller must verify the Google token on the backend.
+    if (data.emailVerified !== true) {
+      throw new Error("Please use a verified Google account.");
     }
 
     if (data.mode !== "login" && data.mode !== "signup") {
@@ -188,6 +253,7 @@ class AuthService {
         email: true,
         role: true,
         isPro: true,
+        isSuspended: true,
         aiCredits: true,
         subscriptionCredits: true,
         createdAt: true,
@@ -197,14 +263,16 @@ class AuthService {
     let authenticatedUser = user;
 
     if (data.mode === "login" && !user) {
-      // Login must not silently register a new account.
       throw new Error(
         "Google account not registered. Please sign up first."
       );
     }
 
+    if (user) {
+      assertNotSuspended(user);
+    }
+
     if (data.mode === "signup" && user) {
-      // Signup should not silently log in an existing account.
       throw new Error(
         "Google account already registered. Please log in instead."
       );
@@ -223,9 +291,16 @@ class AuthService {
         throw new Error("Please specify your career role.");
       }
 
+      // Validate referral before creating the new account.
+      const referralData = await getReferralData(
+        data.referralCode,
+        email
+      );
+
       // Google-only accounts receive a random hashed password.
-      const randomSecret = (0, node_crypto_1.randomBytes)(32)
-        .toString("hex");
+      const randomSecret = (0, node_crypto_1.randomBytes)(32).toString(
+        "hex"
+      );
 
       const oauthOnlyPassword = await (
         0,
@@ -240,6 +315,7 @@ class AuthService {
           role: requestedRole,
           isPro: false,
           aiCredits: 1,
+          ...referralData,
         },
         select: {
           id: true,
@@ -247,11 +323,16 @@ class AuthService {
           email: true,
           role: true,
           isPro: true,
+          isSuspended: true,
           aiCredits: true,
           subscriptionCredits: true,
           createdAt: true,
         },
       });
+    }
+
+    if (!authenticatedUser) {
+      throw new Error("Google authentication failed.");
     }
 
     const token = (0, jwt_1.generateToken)({
@@ -260,10 +341,7 @@ class AuthService {
     });
 
     return {
-      user: {
-        ...authenticatedUser,
-        isAdmin: isAdminEmail(authenticatedUser.email),
-      },
+      user: toPublicUser(authenticatedUser),
       token,
     };
   }
