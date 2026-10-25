@@ -5,7 +5,8 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AdminRoute } from "./AdminRoute";
 
-import { HomePage } from "@/pages/Home";
+
+import HomePage from "@/pages/Home";
 import { LoginPage } from "@/pages/auth/Login";
 import { RegisterPage } from "@/pages/auth/Register";
 import { DashboardPage } from "@/pages/dashboard/Dashboard";
