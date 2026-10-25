@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link, NavLink, useNavigate } from "react-router-dom";
@@ -26,6 +25,7 @@ import {
   Trophy,
   Coins,
   Gift,
+  FilePlus2,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { FeedbackModal } from "@/components/FeedbackModal";
@@ -311,6 +311,21 @@ export function Sidebar({ isOpen, onClose }) {
               </div>
             </div>
           ))}
+
+          {/* External Resume Builder — kept last in the user sidebar */}
+          <div className="mt-6 border-t border-[#e6d9df] pt-4 dark:border-white/[0.08]">
+            <a
+              href="https://flowcv.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onClose}
+              className="group flex min-h-10 items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-[13px] font-medium text-[#655568] transition-all duration-200 hover:border-[#eadde6] hover:bg-[#f7efe9] hover:text-[#29182f] dark:text-[#c1b4c7] dark:hover:border-white/[0.07] dark:hover:bg-white/[0.05] dark:hover:text-white"
+            >
+              <FilePlus2 className="h-[18px] w-[18px] shrink-0 text-[#8a788e] transition-transform duration-200 group-hover:scale-105 group-hover:text-[#79557e] dark:text-[#a997b0] dark:group-hover:text-[#d5b6df]" />
+              <span className="min-w-0 flex-1">Resume Builder</span>
+              <span className="text-[10px] text-[#9a879c] dark:text-[#8e7b94]">↗</span>
+            </a>
+          </div>
         </nav>
 
         {/* Pro Plan Card */}

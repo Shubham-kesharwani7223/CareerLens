@@ -43,10 +43,9 @@ router.post(
     )
 );
 
-// =============================================================
+
 // PRO TIER: Advanced AI features.
 // Both an active Pro subscription and available AI credits required.
-// =============================================================
 
 router.post(
   "/job-match",

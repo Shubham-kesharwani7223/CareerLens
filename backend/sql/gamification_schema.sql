@@ -1,5 +1,4 @@
 -- CareerLens Gamification schema (PostgreSQL / Neon)
--- Run once in Neon SQL Editor. Does not modify MongoDB.
 
 CREATE TABLE IF NOT EXISTS categories (
   id BIGSERIAL PRIMARY KEY,

@@ -1,5 +1,5 @@
 export const APP_NAME = import.meta.env.VITE_APP_NAME || "CareerLens";
-/** Base URL for `/api/...` routes. Accepts `https://host` or `https://host/api` from env. */
+
 function normalizeApiBaseUrl(raw) {
     const fallback = "http://localhost:5000/api";
     if (raw == null || String(raw).trim() === "")
@@ -12,7 +12,6 @@ function normalizeApiBaseUrl(raw) {
 export const API_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_URL);
 /** Web client ID (Google Cloud OAuth). Env VITE_GOOGLE_CLIENT_ID overrides when set. */
 export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-    //"635746911291-7tqkp4v5vab4k0hf5es0agafn67ug7ep.apps.googleusercontent.com";
     "284388847373-jipmdg88j82h2j00mnp6hvstccluahu3.apps.googleusercontent.com";
 export const TOKEN_KEY = "ara_token";
 export const THEME_KEY = "ara_theme";
